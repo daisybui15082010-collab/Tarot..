@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời Mời Định Mệnh - Tarot Birthday</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #0b0713;
+            background-image: radial-gradient(circle at center, #171026 0%, #050308 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            color: #e2d5f3;
+            perspective: 1500px;
+            cursor: pointer;
+        }
+
+        /* Hiệu ứng hạt sáng lấp lánh nền */
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(white, transparent 10%), radial-gradient(white, transparent 10%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            opacity: 0.04;
+            animation: twinkle 4s infinite linear;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes twinkle {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-40px); }
+        }
+
+        /* Tiêu đề trạng thái */
+        #status-title {
+            position: absolute;
+            top: 5%;
+            font-size: 16px;
+            letter-spacing: 3px;
+            color: #bfa15f;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(191, 161, 95, 0.5);
+            z-index: 10;
+            text-transform: uppercase;
+            padding: 0 20px;
+            line-height: 1.6;
+            pointer-events: none;
+        }
+
+        /* Sân khấu bài */
+        .stage {
+            position: relative;
+            width: 320px;
+            height: 520px;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        /* Cấu trúc lá bài tổng thể */
+        .card {
+            position: absolute;
+            width: 300px;
+            height: 500px;
+            transform-style: preserve-3d;
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 18px;
+        }
+
+        /* Thiết lập các mặt của bài */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 18px;
+            border: 3px solid #bfa15f;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        /* MẶT SAU (Họa tiết huyền bí) */
+        .card-back {
+            background: #140e22;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .back-pattern {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #bfa15f;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #1c1330 25%, transparent 25%), linear-gradient(-45deg, #1c1330 25%, transparent 25%);
+            background-size: 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            color: #bfa15f;
+            text-shadow: 0 0 15px rgba(191, 161, 95, 0.6);
+        }
+
+        /* MẶT TRƯỚC (Nội dung thiệp) */
+        .card-front {
+            background: #0f0b18;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+        .image-box {
+            width: 100%;
+            height: 50%;
+            border-radius: 8px;
+            overflow: hidden;
+            border-bottom: 2px solid #bfa15f;
+        }
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .content-box {
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-top: 10px;
+            text-align: center;
+        }
+        .title {
+            color: #bfa15f;
+            font-size: 19px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        .subtitle {
+            font-size: 10px;
+            color: #8c7fa6;
+            margin-bottom: 5px;
+        }
+        .details {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #dfd5f0;
+            text-align: left;
+            padding: 0 5px;
+        }
+        .highlight { color: #bfa15f; font-weight: bold; }
+        .btn {
+            background: transparent;
+            border: 1px solid #bfa15f;
+            color: #bfa15f;
+            padding: 8px 0;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: block;
+            pointer-events: auto;
+        }
+        .btn:hover {
+            background: #bfa15f;
+            color: #110e1a;
+            box-shadow: 0 0 12px rgba(191, 161, 95, 0.6);
+        }
+
+        /* 1. Trạng thái xào bài tự động */
+        .shuffle-left { animation: shuffleL 1.2s infinite ease-in-out; z-index: 4; }
+        .shuffle-center { animation: shuffleC 1.2s infinite ease-in-out; z-index: 3; }
+        .shuffle-right { animation: shuffleR 1.2s infinite ease-in-out; z-index: 2; }
+
+        @keyframes shuffleL {
+            0%, 100% { transform: translateX(-25px) scale(0.95) rotate(-3deg); }
+            50% { transform: translateX(35px) scale(1.02) rotate(4deg); z-index: 1; }
+        }
+        @keyframes shuffleC {
+            0%, 100% { transform: translateX(0px) scale(1) rotate(0deg); }
+            50% { transform: translateX(-30px) scale(0.96) rotate(-2deg); }
+        }
+        @keyframes shuffleR {
+            0%, 100% { transform: translateX(25px) scale(0.95) rotate(3deg); }
+            50% { transform: translateX(-35px) scale(1.02) rotate(-4deg); z-index: 5; }
+        }
+
+        /* 2. Trạng thái bung bài lơ lửng */
+        .spread-left { transform: translateX(-80px) translateY(-10px) rotate(-8deg) scale(0.9); opacity: 0.4; }
+        .spread-right { transform: translateX(80px) translateY(-10px) rotate(8deg) scale(0.9); opacity: 0.4; }
+        .spread-main { transform: translateX(0) translateY(-15px) scale(1.05); z-index: 10; box-shadow: 0 0 25px rgba(191, 161, 95, 0.3); }
+
+        /* Hiệu ứng lơ lửng nhẹ cho lá bài chính */
+        .float-active { animation: mainFloat 3.5s ease-in-out infinite; }
+        @keyframes mainFloat {
+            0%, 100% { transform: translateX(0) translateY(-15px) scale(1.05) rotateX(1deg); }
+            50% { transform: translateX(0) translateY(-28px) scale(1.05) rotateX(-1deg); }
+        }
+
+        /* 3. Lật bài */
+        .flipped { transform: rotateY(180deg) scale(1.05) !important; animation: none !important; }
+        .fade-out { opacity: 0 !important; transform: scale(0.5); }
+    </style>
+</head>
+<body>
+
+    <div class="sparkles"></div>
+    <div id="status-title">🔮 Tập trung năng lượng... <br>Chạm bất kỳ đâu để dừng xào & bung bài</div>
+
+    <div class="stage">
+        <!-- Lá bài số 1 -->
+        <div class="card shuffle-left" id="c1">
+            <div class="card-face card-back"><div class="back-pattern">✨</div></div>
+        </div>
+
+        <!-- Lá bài số 2 (Chính giữa) -->
+        <div class="card shuffle-center" id="c2">
+            <div class="card-face card-back">
+                <div class="back-pattern">🔮</div>
+            </div>
+            <div class="card-face card-front">
+                <div class="image-box">
+                    <img src="https://imgbox.com" alt="The Cake Tarot">
+                </div>
+                <div class="content-box">
+                    <div>
+                        <div class="title">XV - THE CAKE</div>
+                        <div class="subtitle">THIỆP MỜI ĐỊNH MỆNH</div>
+                        <p class="details">
+                            Vũ trụ gửi tín hiệu! Bản đồ sao cho thấy các vì tinh tú sẽ hội tụ ăn mừng sinh nhật của tui:<br><br>
+                            📅 Ngày lập tinh: <span class="highlight">15.08.2026</span><br>
+                            ⏱ Giờ hoàng đạo: <span class="highlight">11h15</span><br>
+                            📍 Tọa độ hội tụ: <span class="highlight">Quán The Garden, số 03 Đ. Phân Khu Nam, Long An.</span><br><br>
+                            👑 Dresscode: <span class="highlight">Mặc gì cũng được, ưng bụng mình là được!</span>
+                        </p>
+                    </div>
+                    <a href="https://m.me" target="_blank" class="btn">XÁC NHẬN THAM GIA</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lá bài số 3 -->
+        <div class="card shuffle-right" id="c3">
+            <div class="card-face card-back"><div class="back-pattern">👁</div></div>
+        </div>
+    </div>
+
+    <script>
+        const title = document.getElementById('status-title');
+        const c1 = document.getElementById('c1');
+        const c2 = document.getElementById('c2'); 
+        const c3 = document.getElementById('c3');
+        
+        let currentStep = 0; 
+
+        document.body.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn')) return;
+document.body.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn')) return;
+
+    // BẤM LẦN 1: Bung bài
+    if (currentStep === 0) {
+        c1.classList.remove('shuffle-left');
+        c2.classList.remove('shuffle-center');
+        c3.classList.remove('shuffle-right');
+        
+        setTimeout(() => {
+            c1.classList.add('spread-left');
+            c3.classList.add('spread-right');
+            c2.classList.add('spread-main');
+            title.innerHTML = "✨ Vận mệnh đã định! Chạm thêm lần nữa để lật mở bài giải nghĩa";
+            currentStep = 1;
+        }, 50);
+        return;
+    }
+
+    // BẤM LẦN 2: Lật bài chính giữa và ẩn 2 lá phụ
+    if (currentStep === 1) {
+        c2.classList.add('flipped');
+        c1.classList.add('fade-out');
+        c3.classList.add('fade-out');
+        title.innerHTML = "🎂 Xin hãy đến dự tiệc sinh nhật của tui! Thông điệp vũ trụ dành cho bạn";
+        
+        setTimeout(() => {
+            c2.classList.add('float-active');
+        }, 800);
+        
+        currentStep = 2;
+    }
+});
